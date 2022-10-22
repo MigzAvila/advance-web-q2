@@ -33,6 +33,13 @@ func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 
+// Method not found response
+func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
+	//prepare a message with error
+	message := "the requested resources could not be found."
+	app.errorResponse(w, r, http.StatusNotFound, message)
+}
+
 // User passed a bad request
 func (app *application) badResquestReponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())

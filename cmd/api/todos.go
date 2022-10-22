@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -62,7 +63,30 @@ func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request
 
 // showTodoHandler for GET /v1/todos endpoints
 func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("getting specific todo task")
+	//Utilize Utility Methods From helpers.go
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	// Fetch the specific todo
+	todo, err := app.models.Todos.Get(id)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	// write the data return by the Get method
+	err = app.writeJSON(w, http.StatusOK, envelope{"todo": todo}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 
 }
 
