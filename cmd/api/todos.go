@@ -5,12 +5,15 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"todoapi.miguelavila.net/internals/data"
+	"todoapi.miguelavila.net/internals/validator"
 )
 
 // createTodoHandler for POST v1/todos endpoint
 func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title       string `json:"name"`
+		Title       string `json:"title"`
 		Description string `json:"description,omitempty"`
 		Completed   bool   `json:"completed"`
 	}
@@ -18,6 +21,33 @@ func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badResquestReponse(w, r, err)
+		return
+	}
+
+	// Copy the values from the input struct to a new Todo struct
+	todo := &data.Todo{
+		Title:       input.Title,
+		Description: input.Description,
+		Completed:   input.Completed,
+	}
+
+	// Initialize a new instance of validator
+	v := validator.New()
+
+	// Check the errors maps if there were any errors validation
+	if data.ValidateTodo(v, todo); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// create a Location header for the newly created resource/school
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/schools/%d", todo.ID))
+	// write the json response with 201 - created status code with the body
+	// being the school data and the headers being the headers map
+	err = app.writeJSON(w, http.StatusCreated, envelope{"todo": todo}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
