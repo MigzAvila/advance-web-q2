@@ -92,11 +92,85 @@ func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) 
 
 // updateTodoHandler for PUT /v1/todos/{id} endpoints
 func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request) {
+	// This method does a partial replacement
+	// get the id of the todo and update the todo
+	// Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Printf("updating specific todo task for %v", id)
+
+	// fetch the original record from database
+	todo, err := app.models.Todos.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// create an input struct to hold the data read in from the client
+	// Update input struct to use pointers because pointers have a default value of nil
+	// if field remains nil then we know that the client is not interested in updating the field
+	var input struct {
+		Title       *string `json:"title"`
+		Description *string `json:"Description"`
+		Completed   *bool   `json:"Completed"`
+	}
+	// Decode the data from the client
+	err = app.readJSON(w, r, &input)
+
+	// copy / update the fields / values in the todo variable using the fields in the input struct
+	if err != nil {
+		app.badResquestReponse(w, r, err)
+		return
+	}
+
+	if input.Title != nil {
+		todo.Title = *input.Title
+	}
+
+	if input.Description != nil {
+		todo.Description = *input.Description
+	}
+
+	if input.Completed != nil {
+		todo.Completed = *input.Completed
+	}
+
+	// validate the data provided by the client, if the validation fails,
+	// then we send a 422 - Unprocessable responses to the client
+	// Initialize a new validation error instance
+
+	v := validator.New()
+
+	if data.ValidateTodo(v, todo); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Pass the updated todo record to the update method
+	err = app.models.Todos.Update(todo)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// write the json response by Update
+	err = app.writeJSON(w, http.StatusCreated, envelope{"todo": todo}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 }
 
 // deleteTodoHandler for DELETE /v1/todos/{id} endpoints

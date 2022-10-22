@@ -102,3 +102,44 @@ func (m TodosModel) Get(id int64) (*Todo, error) {
 	// Success
 	return &todo, nil
 }
+
+// Update() allows us to update a specific todo
+// KEY: GO's http.server handles each request in its own goroutine
+// Avoid data races
+// A: Apples 3 buys 3 so 0 remains
+// B: Apples 3 buys 2 so 1 remains
+// USING Optimistic Locking to prevent multiple Optimistic sql
+func (m TodosModel) Update(todo *Todo) error {
+	query := `
+		UPDATE todos
+		SET title = $1, description = $2, complete = $3, version = version + 1
+		WHERE id = $4
+		AND version = $5
+		RETURNING version
+	`
+	// Create a context
+	// Time starts when the context is created
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// cleanup the context to prevent memory leaks
+	defer cancel()
+	args := []interface{}{
+		todo.Title,
+		todo.Description,
+		todo.Completed,
+		todo.ID,
+		todo.Version,
+	}
+
+	// check for edit conflict
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&todo.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
