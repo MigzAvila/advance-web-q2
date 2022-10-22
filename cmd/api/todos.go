@@ -9,7 +9,17 @@ import (
 
 // createTodoHandler for POST v1/todos endpoint
 func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("creating a new todo task")
+	var input struct {
+		Title       string `json:"name"`
+		Description string `json:"description,omitempty"`
+		Completed   bool   `json:"completed"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badResquestReponse(w, r, err)
+		return
+	}
 
 }
 
