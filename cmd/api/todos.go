@@ -40,11 +40,18 @@ func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// create a Location header for the newly created resource/school
+	// create a todo
+	err = app.models.Todos.Insert(todo)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// create a Location header for the newly created resource/todos
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/schools/%d", todo.ID))
+	headers.Set("Location", fmt.Sprintf("/v1/todos/%d", todo.ID))
 	// write the json response with 201 - created status code with the body
-	// being the school data and the headers being the headers map
+	// being the todo data and the headers being the headers map
 	err = app.writeJSON(w, http.StatusCreated, envelope{"todo": todo}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -78,7 +85,7 @@ func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request
 
 }
 
-// listTodoHandler for GET /v1/todos endpoints (allows the client to see a listing of schools)
+// listTodoHandler for GET /v1/todos endpoints (allows the client to see a listing of todos)
 // based on a set of criteria
 func (app *application) listTodosHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("getting list of todo tasks")

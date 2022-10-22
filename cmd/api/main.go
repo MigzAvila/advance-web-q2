@@ -43,7 +43,7 @@ func main() {
 	//read in the flag that are needed to populate the config ~ flag for using as extra cmd
 	flag.IntVar(&cfg.port, "port", 4000, "API port")
 	flag.StringVar(&cfg.env, "env", "dev", "(dev | stg | prd)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("APPLETREE_DB_DSN"), "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("TODO_DB_DSN"), "PostgreSQL DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-open-conns", 25, "PostgreSQL max idle open connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-open-time", "15m", "PostgreSQL max connections idle time")
