@@ -69,9 +69,6 @@ func main() {
 		logger: logger,
 		models: *data.NewModels(db),
 	}
-	//create out new servemux
-	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/healthcheck", app.healthcheckHandler)
 
 	//create our http server
 	srv := &http.Server{
