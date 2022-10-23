@@ -58,3 +58,15 @@ view model =
         , ul [ class "text-left mt-24" ] (List.map viewSearchResult model.todos)
     ]
     ]
+
+viewSearchResult : Todo -> Html Msg
+viewSearchResult todo =
+    li [ class "todostyle", onClick (CompleteTodo todo.id todo.isComplete) ]
+        [ button
+            [ class "check material-symbols-outlined ", onClick (CompleteTodo todo.id todo.isComplete) ]
+            [ text "check" ]
+        , div [ classList[("completed", todo.isComplete)], class "text-todo" ] [ text todo.name ]
+        , button
+            [ class "remove ", onClick (DeleteTodo todo.id)]
+            [ text "X" ]
+        ]
