@@ -245,9 +245,6 @@ func (app *application) listTodosHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Get a listing of all todos
-	fmt.Printf("\n%s", input.Title)
-	fmt.Printf("\n%s", input.Description)
-	fmt.Printf("\n%t", input.Completed)
 	todos, metadata, err := app.models.Todos.GetAll(input.Title, input.Description, input.Completed, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
