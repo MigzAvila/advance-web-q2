@@ -143,3 +143,47 @@ func (m TodosModel) Update(todo *Todo) error {
 
 	return nil
 }
+
+// Delete() allows us to delete a specific Todo
+func (m TodosModel) Delete(id int64) error {
+	// Ensure that there is a valid id
+	if id < 1 {
+		return nil
+	}
+
+	// Create the query for deleting a specific todo
+	query := `
+			DELETE FROM todos
+			WHERE id = $1
+		`
+
+	// Create a context
+	// Time starts when the context is created
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	// cleanup the context to prevent memory leaks
+	defer cancel()
+
+	// Execute the query
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		// Check error type
+		return err
+	}
+
+	// Check how many records were deleted by the query
+	rows, err := result.RowsAffected()
+
+	if err != nil {
+		// Check error type
+		return err
+	}
+
+	// check if no records were deleted
+	if rows == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+
+}

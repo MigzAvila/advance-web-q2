@@ -175,16 +175,46 @@ func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request
 
 // deleteTodoHandler for DELETE /v1/todos/{id} endpoints
 func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
+	// This method does a delete of a specific todo
+	// get the id of the school and delete the todo
+	// Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
-		fmt.Println(err.Error())
+		app.notFoundResponse(w, r)
+		return
 	}
-	fmt.Printf("deleting specific todo task for %v", id)
+
+	// delete the school from the database. send a 404 notFoundResponse status code to the client if there is no matching record
+	// fetch the original record from database
+	err = app.models.Todos.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	//  return 200 status ok the client with a successful message
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "todo successfully deleted"}, nil)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 
 }
 
 // listTodoHandler for GET /v1/todos endpoints (allows the client to see a listing of todos)
 // based on a set of criteria
 func (app *application) listTodosHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("getting list of todo tasks")
+	//  return 200 status ok the client with a successful message
+	err := app.writeJSON(w, http.StatusOK, envelope{"message": "printing list"}, nil)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
