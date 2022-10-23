@@ -1,0 +1,126 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.title{
+    position: relative;
+    float:left;
+    top:0px;
+    margin-bottom:30px;
+    width: 100%;
+    font-size: 30px;
+    font-weight: 700;
+    font-style: italic;
+    text-align: center;
+    color:#ffffff;
+    line-height: 80px;
+    background-color: #202c33;
+}
+.form{
+   margin: 0 auto;
+   width: 300px;
+}
+.todo-input{
+    color: #ffffff;
+    border:0px;
+    background-color: #2a3942;
+    line-height: 34px;
+    margin-bottom: 10px;
+}
+.btn{
+    border-top-left-radius: 0px;
+    width: 80px;
+    line-height: 34px;
+    margin-bottom: 10px;
+    color:#ffffff;
+    cursor: pointer;
+    font-weight: 700;
+    border:none;
+    background-color: #015143;
+}
+*:focus {
+    outline: none;
+}
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #eee;
+    text-align: center;
+    font-weight: 700;
+  }
+  ul{
+    margin: 0 auto;
+   width: 300px;
+  }
+  .todostyle{
+    position: relative;
+    float: left;
+    line-height: 30px;
+    width: 300px !important;
+  }
+  .text-todo{
+    position: relative;
+    float: left;
+    padding-left: 5px;
+    width: 200px !important;
+  }
+  .completed{
+
+    text-decoration: line-through;
+  }
+  .remove{
+   position: relative;
+   float: left;
+    color: #fff;
+    width: 24px;
+    padding: 8px;
+    border: none;
+    background-color: red;
+  }
+  .check{
+    position: relative;
+    float: left;
+     color: #fff;
+     padding: 5px;
+     font-size: 15px !important;
+     border: none;
+     background-color: green;
+   }
