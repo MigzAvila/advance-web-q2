@@ -36,3 +36,25 @@ initialModel =
     , uid = 0
     , todos = []
     }
+
+
+-- Create model
+view : Model -> Html Msg
+view model =
+    div [ class "text-center" ] [ div [ class "todo-container text-left p-24 bg-white shadow-sm rounded flex flex-col mx-auto my-48" ]
+        [ header [ ]
+            [ h1 [ class "title" ] [ text "Todo List" ] ]
+        , Html.form [ class "form" ,onSubmit AddTodo ] [
+            input
+                [ class "todo-input"
+                , placeholder "Title here.."
+                , onInput
+                    (\string -> SetField string)
+                , value model.field
+                ]
+                []
+            , button [ class "btn", type_ "submit", disabled (model.field == "") ] [ text "Create" ]
+        ]
+        , ul [ class "text-left mt-24" ] (List.map viewSearchResult model.todos)
+    ]
+    ]
