@@ -11,12 +11,14 @@ import Html.Events exposing (onClick, onInput, onSubmit)
 type alias Todo =
     { id : Int
     , name : String
+    , description : String
     , isComplete: Bool
     }
 
 -- Create a Type Model to wrap all the todos (Holds multiple todo)
 type alias Model =
     { field : String
+    , description : String
     , uid : Int
     , todos : List Todo
     }
@@ -25,6 +27,7 @@ type alias Model =
 type Msg
     = AddTodo
     | SetField String
+    | SetDesField String
     | DeleteTodo Int
     | CompleteTodo Int Bool
 
@@ -33,6 +36,7 @@ type Msg
 initialModel : Model
 initialModel =
     { field = ""
+    , description = ""
     , uid = 0
     , todos = []
     }
@@ -41,10 +45,11 @@ initialModel =
 -- Create model
 view : Model -> Html Msg
 view model =
-    div [ class "text-center" ] [ div [ class "todo-container text-left p-24 bg-white shadow-sm rounded flex flex-col mx-auto my-48" ]
+    div [ class "text-center" ] 
+    [ div [ class "todo-container text-left p-24 bg-white shadow-sm rounded flex flex-col mx-auto my-48" ]
         [ header [ ]
             [ h1 [ class "title" ] [ text "Todo List" ] ]
-        , Html.form [ class "form" ,onSubmit AddTodo ] [
+        , Html.form [ class "form" ,onSubmit AddTodo ] [ 
             input
                 [ class "todo-input"
                 , placeholder "Title here.."
@@ -53,23 +58,41 @@ view model =
                 , value model.field
                 ]
                 []
+
+            ,input
+                [ class "todo-description-input"
+                , placeholder "Description here.."
+                , onInput
+                    (\string -> SetDesField string)
+                , value model.description
+                ]
+                []
+            
             , button [ class "btn", type_ "submit", disabled (model.field == "") ] [ text "Create" ]
         ]
-        , ul [ class "text-left mt-24" ] (List.map viewSearchResult model.todos)
+        , ul [ class "text-left mt-24" ] (List.map viewTodo model.todos)
     ]
     ]
 
 -- model to display all the todo added
-viewSearchResult : Todo -> Html Msg
-viewSearchResult todo =
+viewTodo : Todo -> Html Msg
+viewTodo todo =
     li [ class "todostyle", onClick (CompleteTodo todo.id todo.isComplete) ]
         [ button
             [ class "check material-symbols-outlined ", onClick (CompleteTodo todo.id todo.isComplete) ]
             [ text "check" ]
-        , div [ classList[("completed", todo.isComplete)], class "text-todo" ] [ text todo.name ]
+        , div [ 
+            classList[("completed", todo.isComplete)]
+            ,class "text-todo" 
+            ] 
+        [ 
+        span  [ class "displaytitle" ] [ text todo.name]
+        , span [ class "description" ] [ text " : "]
+        , span [ class "description" ] [ text todo.description ]
+        ]
         , button
-            [ class "remove ", onClick (DeleteTodo todo.id)]
-            [ text "X" ]
+            [ class "remove", onClick (DeleteTodo todo.id)]
+            [ text "x" ]
         ]
 
 
@@ -78,9 +101,11 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         AddTodo ->
-            { model | todos = { id = model.uid, name = model.field, isComplete = False } :: model.todos, field = "", uid = model.uid + 1 }
+            { model | todos = { id = model.uid, name = model.field, description = model.description, isComplete = False } :: model.todos, field = "", description = "", uid = model.uid + 1 }
         SetField str ->
             { model | field = str }
+        SetDesField str ->
+            { model | description = str }
         DeleteTodo id ->
             { model | todos = List.filter(\todo -> todo.id /= id) model.todos }
         CompleteTodo id complete ->
