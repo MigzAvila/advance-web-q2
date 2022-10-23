@@ -63,7 +63,7 @@ func main() {
 	// log successful connection
 	logger.Printf("database connection pool established")
 
-	//create install of out appmi
+	//create instances of out api
 	app := &application{
 		config: cfg,
 		logger: logger,

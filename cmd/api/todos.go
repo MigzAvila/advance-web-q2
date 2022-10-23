@@ -176,7 +176,7 @@ func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request
 // deleteTodoHandler for DELETE /v1/todos/{id} endpoints
 func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 	// This method does a delete of a specific todo
-	// get the id of the school and delete the todo
+	// get the id of the todo and delete the todo
 	// Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -184,7 +184,7 @@ func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// delete the school from the database. send a 404 notFoundResponse status code to the client if there is no matching record
+	// delete the todo from the database. send a 404 notFoundResponse status code to the client if there is no matching record
 	// fetch the original record from database
 	err = app.models.Todos.Delete(id)
 	if err != nil {
@@ -210,11 +210,54 @@ func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request
 // listTodoHandler for GET /v1/todos endpoints (allows the client to see a listing of todos)
 // based on a set of criteria
 func (app *application) listTodosHandler(w http.ResponseWriter, r *http.Request) {
-	//  return 200 status ok the client with a successful message
-	err := app.writeJSON(w, http.StatusOK, envelope{"message": "printing list"}, nil)
+	// create an input struct to hold our query parameters
+	var input struct {
+		Title       string
+		Description string
+		Completed   bool
+		data.Filters
+	}
 
+	// initialize a validator
+	v := validator.New()
+
+	// get the URL values in a map
+	qs := r.URL.Query()
+
+	// use the helper method to extract the values
+	input.Title = app.readString(qs, "title", "")
+	input.Description = app.readString(qs, "description", "")
+	input.Completed = app.readBool(qs, "completed", false, v)
+
+	// get the  page info
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 10, v)
+
+	// get the sort info
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+
+	// specific the allowed sort types
+	input.Filters.SortList = []string{"id", "title", "description", "completed", "-id", "-title", "-description", "-completed"}
+
+	// check for validation errors
+	if data.ValidateFilters(v, input.Filters); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+	}
+
+	// Get a listing of all todos
+	fmt.Printf("\n%s", input.Title)
+	fmt.Printf("\n%s", input.Description)
+	fmt.Printf("\n%t", input.Completed)
+	todos, metadata, err := app.models.Todos.GetAll(input.Title, input.Description, input.Completed, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"todos": todos, "metadata": metadata}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 }
