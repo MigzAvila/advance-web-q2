@@ -59,6 +59,7 @@ view model =
     ]
     ]
 
+-- model to display all the todo added
 viewSearchResult : Todo -> Html Msg
 viewSearchResult todo =
     li [ class "todostyle", onClick (CompleteTodo todo.id todo.isComplete) ]
@@ -70,3 +71,36 @@ viewSearchResult todo =
             [ class "remove ", onClick (DeleteTodo todo.id)]
             [ text "X" ]
         ]
+
+
+-- Create our updates model
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        AddTodo ->
+            { model | todos = { id = model.uid, name = model.field, isComplete = False } :: model.todos, field = "", uid = model.uid + 1 }
+        SetField str ->
+            { model | field = str }
+        DeleteTodo id ->
+            { model | todos = List.filter(\todo -> todo.id /= id) model.todos }
+        CompleteTodo id complete ->
+        -- Find the specific todo and invert the complete status
+            let
+                updateTodo todo =
+                    if todo.id == id then
+                        { todo | isComplete = not complete }
+                    else
+                        todo
+            in
+            { model | todos = List.map updateTodo model.todos }
+
+
+
+-- Create our view model to display on Browser
+main : Program () Model Msg
+main =
+    Browser.sandbox
+        { view = view
+        , update = update
+        , init = initialModel
+        }
