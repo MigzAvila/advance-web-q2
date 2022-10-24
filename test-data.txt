@@ -1,0 +1,18 @@
+// create a todo task
+curl -X POST -d '{"title": "washing", "description": "wash the dishes", "completed": false}' localhost:4000/v1/todos
+curl -X POST -d '{"title": "create an go api for Todo task", "description": "an api that supports creating, filtering, getting todo task", "completed": false}' localhost:4000/v1/todos
+
+// get specific todo tasj
+curl -i localhost:4000/v1/todos/2
+
+// update
+curl -X PATCH -d '{"completed": true}' localhost:4000/v1/todos/49
+
+// full search/filter
+curl -i "localhost:4000/v1/todos?title=api"
+curl -i "localhost:4000/v1/todos?description=supporting"
+curl -i "localhost:4000/v1/todos?title=reedited&completed=false"
+
+
+// delete
+curl -X DELETE localhost:4000/v1/todos/2
