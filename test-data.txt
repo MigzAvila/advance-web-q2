@@ -12,7 +12,8 @@ curl -X PATCH -d '{"completed": true}' localhost:4000/v1/todos/49
 curl -i "localhost:4000/v1/todos?title=api"
 curl -i "localhost:4000/v1/todos?description=supporting"
 curl -i "localhost:4000/v1/todos?title=reedited&completed=false"
-
+curl "localhost:4000/v1/todos?page=2&page_size=20
+curl "localhost:4000/v1/todos?page=2&sort=-id"
 
 // delete
 curl -X DELETE localhost:4000/v1/todos/2
